@@ -1,0 +1,63 @@
+{
+    "session_date": "2026-06-11",
+    "total_frames_processed": 78,
+    "session_duration_sec": 17,
+    "productivity_index": 0.0,
+    "safety_index": 0.0,
+    "average_risk_score": 65.26,
+    "peak_risk_score": 80.0,
+    "safety_violations_count": 3,
+    "workers": {
+        "1": {
+            "track_id": 1,
+            "total_frames": 69,
+            "productivity_index": 0.0,
+            "safety_index": 0.0,
+            "average_risk_score": 66.59,
+            "peak_risk_score": 80.0,
+            "violations_count": 2,
+            "activity_distribution": {
+                "Safe_Walkway_Violation": 37,
+                "Carrying_Overload": 32
+            }
+        },
+        "2": {
+            "track_id": 2,
+            "total_frames": 9,
+            "productivity_index": 0.0,
+            "safety_index": 0.0,
+            "average_risk_score": 55.0,
+            "peak_risk_score": 55.0,
+            "violations_count": 1,
+            "activity_distribution": {
+                "Safe_Walkway_Violation": 9
+            }
+        }
+    },
+    "discrete_violations": [
+        {
+            "track_id": 1,
+            "alert_type": "Walkway Boundary Crossing",
+            "start_time_sec": 0,
+            "end_time_sec": 7,
+            "duration_seconds": 7,
+            "frame_count": 37
+        },
+        {
+            "track_id": 1,
+            "alert_type": "Ergonomic Lifting Threat",
+            "start_time_sec": 7,
+            "end_time_sec": 17,
+            "duration_seconds": 10,
+            "frame_count": 32
+        },
+        {
+            "track_id": 2,
+            "alert_type": "Walkway Boundary Crossing",
+            "start_time_sec": 1,
+            "end_time_sec": 8,
+            "duration_seconds": 7,
+            "frame_count": 9
+        }
+    ]
+}

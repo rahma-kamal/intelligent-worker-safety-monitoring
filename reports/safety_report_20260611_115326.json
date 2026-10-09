@@ -1,0 +1,72 @@
+{
+    "session_date": "2026-06-11",
+    "total_frames_processed": 343,
+    "session_duration_sec": 44,
+    "productivity_index": 20.95,
+    "safety_index": 20.95,
+    "average_risk_score": 41.87,
+    "peak_risk_score": 65.0,
+    "safety_violations_count": 14,
+    "workers": {
+        "1": {
+            "track_id": 1,
+            "total_frames": 180,
+            "productivity_index": 53.89,
+            "safety_index": 53.89,
+            "average_risk_score": 34.03,
+            "peak_risk_score": 60.0,
+            "violations_count": 5,
+            "activity_distribution": {
+                "Safe_Walkway_Violation": 82,
+                "Safe_Walkway": 70,
+                "Safe_Carrying": 10,
+                "Closed_Panel_Cover": 17,
+                "Opened_Panel_Cover": 1
+            }
+        },
+        "0": {
+            "track_id": 0,
+            "total_frames": 1,
+            "productivity_index": 0.0,
+            "safety_index": 0.0,
+            "average_risk_score": 55.0,
+            "peak_risk_score": 55.0,
+            "violations_count": 1,
+            "activity_distribution": {
+                "Safe_Walkway_Violation": 1
+            }
+        },
+        "2": {
+            "track_id": 2,
+            "total_frames": 85,
+            "productivity_index": 24.71,
+            "safety_index": 24.71,
+            "average_risk_score": 47.82,
+            "peak_risk_score": 65.0,
+            "violations_count": 7,
+            "activity_distribution": {
+                "Safe_Walkway_Violation": 42,
+                "Unauthorized_Intervention": 2,
+                "Safe_Carrying": 6,
+                "Opened_Panel_Cover": 20,
+                "Authorized_Intervention": 10,
+                "Safe_Walkway": 5
+            }
+        },
+        "3": {
+            "track_id": 3,
+            "total_frames": 77,
+            "productivity_index": 5.19,
+            "safety_index": 5.19,
+            "average_risk_score": 53.44,
+            "peak_risk_score": 55.0,
+            "violations_count": 1,
+            "activity_distribution": {
+                "Safe_Walkway_Violation": 73,
+                "Safe_Carrying": 4
+            }
+        }
+    },
+    "discrete_violations": [
+        {
+            "track_id": 

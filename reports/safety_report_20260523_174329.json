@@ -1,0 +1,19 @@
+{
+    "session_date": "2026-05-23",
+    "total_frames_processed": 343,
+    "session_duration_sec": 22,
+    "productivity_index": 58.6,
+    "safety_index": 58.6,
+    "average_risk_score": 32.62,
+    "peak_risk_score": 55.0,
+    "activity_distribution": {
+        "Safe_Walkway_Violation": 142,
+        "Closed_Panel_Cover": 135,
+        "Authorized_Intervention": 59,
+        "Safe_Carrying": 7
+    },
+    "safety_violations_count": 142,
+    "violation_type_distribution": {
+        "Walkway Boundary Crossing": 142
+    }
+}

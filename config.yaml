@@ -1,0 +1,64 @@
+# Global System Configuration for Workplace Safety & HAR
+
+# System Settings
+device: "auto"  # "cuda", "cpu", or "auto"
+yolo_model: "yolov8n-pose.pt"  # Pre-trained model (will automatically download: yolov8n-pose, yolov8s-pose, etc.)
+confidence_threshold: 0.5
+tracking_iou_threshold: 0.3
+
+# Dataset Structure
+dataset:
+  raw_video_dir: "data/workplace_dataset"
+  extracted_keypoints_dir: "data/extracted_features"
+  sequence_length: 30  # Number of temporal frames in a buffer
+  stride: 5  # Sliding window overlap stride
+  classes:
+    - "Safe_Walkway_Violation"      # Index 0 (0_safe_walkway_violation)
+    - "Unauthorized_Intervention"    # Index 1 (1_unauthorized_intervention)
+    - "Opened_Panel_Cover"          # Index 2 (2_opened_panel cover)
+    - "Carrying_Overload"           # Index 3 (3_carrying_overload_with_forklift)
+    - "Safe_Walkway"                # Index 4 (4_safe_walkway)
+    - "Authorized_Intervention"     # Index 5 (5_authorized_intervention)
+    - "Closed_Panel_Cover"          # Index 6 (6_closed_panel_cover)
+    - "Safe_Carrying"               # Index 7 (7_safe_carrying)
+
+# Model Hyperparameters
+models:
+  bilstm:
+    hidden_size: 128
+    num_layers: 2
+    dropout: 0.3
+  tcn:
+    num_channels: [64, 128, 128]
+    kernel_size: 3
+    dropout: 0.2
+  transformer:
+    d_model: 64
+    nhead: 4
+    num_layers: 2
+    dim_feedforward: 128
+    dropout: 0.1
+
+# Training Settings
+training:
+  epochs: 50
+  batch_size: 32
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  validation_split: 0.2
+  save_dir: "checkpoints"
+
+# Safety Violation Thresholds
+safety:
+  bending_angle_threshold: 110.0  # Joint angle in degrees indicating extreme forward bending
+  running_velocity_threshold: 0.12  # Normalized pose keypoint displacement speed per frame
+  fall_aspect_ratio_threshold: 1.8  # Aspect ratio (width / height) indicating horizontal worker posture
+  restricted_zones:  # Coordinate boxes or simulated zones
+    - name: "Restricted Panel Area"
+      polygon: [[100, 100], [400, 100], [400, 600], [100, 600]]  # Normalized coordinate polygon if active
+
+# Dashboard / Web API Settings
+server:
+  host: "127.0.0.1"
+  port: 8000
+  log_level: "info"

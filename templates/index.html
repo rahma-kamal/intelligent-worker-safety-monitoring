@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Industrial HAR & Safety Dashboard</title>
+    <link rel="stylesheet" href="/templates/style.css">
+    <style>
+        /* Fallback static stylesheet routing mapping */
+        @import url('/reports/style.css');
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Header -->
+    <header>
+        <div style="display:flex; align-items:center; gap: 15px;">
+            <h1>FACTORY GUARD AI</h1>
+            <div style="width: 1px; height: 20px; background: var(--panel-border);"></div>
+            <span style="font-size:0.85rem; color:var(--text-muted); font-weight:500; letter-spacing:0.05em; text-transform:uppercase;">Operations Control</span>
+        </div>
+        <div class="header-status">
+            <div class="status-dot"></div>
+            <span id="connection-status">Connecting to server WebSocket...</span>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="dashboard-grid">
+        
+        <!-- Left Sidebar: Active Tracking and Parameters -->
+        <div class="sidebar-panel">
+            
+            <!-- System Status Panel -->
+            <div class="glass-panel" style="display:flex; flex-direction:column; min-height: 280px;">
+                <div class="panel-header">
+                    <span>Active Workers</span>
+                    <span id="worker-count" class="risk-badge risk-low" style="padding: 2px 6px;">0</span>
+                </div>
+                <div id="workers-list" class="scrolling-list">
+                    <div style="text-align:center; color:var(--text-muted); padding-top:40px; font-size:0.9rem;">
+                        No tracked workers active
+                    </div>
+                </div>
+            </div>
+
+            <!-- Productivity & Ergonomics Telemetry -->
+            <div class="glass-panel" style="padding:20px; display:flex; flex-direction:column; gap:15px;">
+                <h3 style="font-size:0.95rem; font-weight:600; color:var(--primary-light); text-transform:uppercase; letter-spacing:0.05em;">AI Risk Distribution</h3>
+                
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                        <span>Ergonomic Fatigue Warning</span>
+                        <span id="fatigue-val" style="color:var(--warning); font-weight:600;">0%</span>
+                    </div>
+                    <div style="height:6px; background:rgba(255,255,255,0.03); border-radius:3px; overflow:hidden;">
+                        <div id="fatigue-bar" style="height:100%; width:0%; background:var(--warning); transition:width 0.4s ease;"></div>
+                    </div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                        <span>Active Hazard Incidents</span>
+                        <span id="hazard-val" style="color:var(--danger); font-weight:600;">0%</span>
+                    </div>
+                    <div style="height:6px; background:rgba(255,255,255,0.03); border-radius:3px; overflow:hidden;">
+                        <div id="hazard-bar" style="height:100%; width:0%; background:var(--danger); transition:width 0.4s ease;"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Center Section: Live Visual Stream feed and KPI grid -->
+        <div class="main-feed-container">
+            
+            <!-- Annotated Video Feed -->
+            <div class="glass-panel feed-card">
+                <img id="video-feed" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="AI Operations Live Feed">
+                
+                <!-- HUD System Watermark overlay -->
+                <div style="position:absolute; top:20px; right:20px; padding:6px 12px; background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.05); border-radius:6px; font-size:0.75rem; color:var(--text-muted); font-family:monospace; letter-spacing:0.1em;">
+                    LIVE STREAM (24FPS)
+                </div>
+            </div>
+
+            <!-- KPI Metric Board -->
+            <div class="kpi-grid">
+                <div class="glass-panel kpi-card">
+                    <div id="kpi-productivity" class="kpi-value" style="color: var(--primary-light);">100.0%</div>
+                    <div class="kpi-label">Productivity Index</div>
+                </div>
+                <div class="glass-panel kpi-card">
+                    <div id="kpi-safety" class="kpi-value" style="color: var(--success);">100.0%</div>
+                    <div class="kpi-label">Safety Index</div>
+                </div>
+                <div class="glass-panel kpi-card">
+                    <div id="kpi-risk" class="kpi-value" style="color: var(--warning);">0.0</div>
+                    <div class="kpi-label">Avg Risk Score</div>
+                </div>
+                <div class="glass-panel kpi-card">
+                    <div id="kpi-violations" class="kpi-value" style="color: var(--danger);">0</div>
+                    <div class="kpi-label">Safety Alerts</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Sidebar: Safety Alarms and Download Center -->
+        <div class="sidebar-panel">
+            
+            <!-- Real-time Alerts Log -->
+            <div class="glass-panel" style="display:flex; flex-direction:column; height:320px;">
+                <div class="panel-header" style="color:var(--danger);">
+                    <span>Hazard Warning Log</span>
+                    <span style="font-size:0.7rem; background:rgba(239,68,68,0.1); padding:2px 6px; border-radius:4px; font-weight:700;">REALTIME</span>
+                </div>
+                <div id="alerts-list" class="scrolling-list" style="padding:15px 20px;">
+                    <div style="text-align:center; color:var(--text-muted); padding-top:60px; font-size:0.9rem;">
+                        No safety violations flagged.
+                    </div>
+                </div>
+            </div>
+
+            <!-- PDF / CSV Download Center -->
+            <div class="glass-panel" style="display:flex; flex-direction:column; flex-grow:1; min-height: 200px;">
+                <div class="panel-header">
+                    <span>Session Reports Exporter</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">AUTO GENERATED</span>
+                </div>
+                <div id="downloads-list" class="scrolling-list">
+                    <div style="text-align:center; color:var(--text-muted); padding-top:45px; font-size:0.9rem;">
+                        Generating initial logs...
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- JavaScript logic connecting WebSocket -->
+    <script>
+        const statusEl = document.getElementById("connection-status");
+        const videoFeed = document.getElementById("video-feed");
+        
+        // Active Workers Elements
+        const workersList = document.getElementById("workers-list");
+        const workerCount = document.getElementById("worker-count");
+        
+        // KPI Elements
+        const kpiProductivity = document.getElementById("kpi-productivity");
+        const kpiSafety = document.getElementById("kpi-safety");
+        const kpiRisk = document.getElementById("kpi-risk");
+        const kpiViolations = document.getElementById("kpi-violations");
+        
+        // Risk Distribution Bars
+        const fatigueVal = document.getElementById("fatigue-val");
+        const fatigueBar = document.getElementById("fatigue-bar");
+        const hazardVal = document.getElementById("hazard-val");
+        const hazardBar = document.getElementById("hazard-bar");
+        
+        // Alerts Elements
+        const alertsList = document.getElementById("alerts-list");
+        const downloadsList = document.getElementById("downloads-list");
+        
+        // Keeps track of unique alerts to prevent spamming duplicate lists
+        let trackedAlerts = [];
+
+        // Establish WebSocket Connection
+        const ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+        const ws_url = `${ws_scheme}://${window.location.host}/ws`;
+        
+        function connect() {
+            const socket = new WebSocket(ws_url);
+            
+            socket.onopen = function() {
+                statusEl.textContent = "Control system active and streaming";
+                document.querySelector(".status-dot").style.backgroundColor = "var(--success)";
+                document.querySelector(".status-dot").style.boxShadow = "0 0 10px var(--success)";
+            };
+            
+            socket.onmessage = function(event) {
+                const packet = JSON.parse(event.data);
+                
+                // 1. Update Video Feed (Annotated frame base64 JPEG)
+                videoFeed.src = `data:image/jpeg;base64,${packet.frame}`;
+                
+                // 2. Update KPI Panel
+                kpiProductivity.textContent = `${packet.telemetry.productivity_index.toFixed(1)}%`;
+                kpiSafety.textContent = `${packet.telemetry.safety_index.toFixed(1)}%`;
+                kpiRisk.textContent = `${packet.telemetry.average_risk.toFixed(1)}`;
+                kpiViolations.textContent = packet.telemetry.violations_count;
+                
+                // Update Risk Bars
+                const avgRisk = packet.telemetry.average_risk;
+                fatigueVal.textContent = `${Math.min(Math.round(avgRisk * 1.5), 100)}%`;
+                fatigueBar.style.width = `${Math.min(Math.round(avgRisk * 1.5), 100)}%`;
+                hazardVal.textContent = `${Math.min(Math.round(packet.telemetry.violations_count * 12.5), 100)}%`;
+                hazardBar.style.width = `${Math.min(Math.round(packet.telemetry.violations_count * 12.5), 100)}%`;
+                
+                // 3. Update Active Workers list
+                workerCount.textContent = packet.active_workers.length;
+                if (packet.active_workers.length === 0) {
+                    workersList.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding-top:40px; font-size:0.9rem;">No tracked workers active</div>`;
+                } else {
+                    let w_html = "";
+                    packet.active_workers.forEach(w => {
+                        const r_class = w.risk_level === "Low" ? "risk-low" : w.risk_level === "Medium" ? "risk-medium" : "risk-high";
+                        w_html += `
+                            <div class="worker-item">
+                                <div class="worker-meta">
+                                    <span class="worker-id">Worker #${w.track_id}</span>
+                                    <span class="worker-activity">${w.activity}</span>
+                                </div>
+                                <span class="risk-badge ${r_class}">Score: ${w.risk_score}</span>
+                            </div>
+                        `;
+                        
+                        // Push active alerts to hazard Warning Log
+                        if (w.alert !== "None") {
+                            triggerAlert(w.track_id, w.alert, w.risk_level);
+                        }
+                    });
+                    workersList.innerHTML = w_html;
+                }
+            };
+            
+            socket.onclose = function() {
+                statusEl.textContent = "Disconnected from socket. Reconnecting...";
+                document.querySelector(".status-dot").style.backgroundColor = "var(--danger)";
+                document.querySelector(".status-dot").style.boxShadow = "0 0 10px var(--danger)";
+                setTimeout(connect, 2000);
+            };
+            
+            socket.onerror = function(err) {
+                console.error("Socket error: ", err);
+                socket.close();
+            };
+        }
+
+        // Handles triggering alert cards in the right-side Hazard warning log
+        function triggerAlert(trackId, alertType, riskLevel) {
+            const alertKey = `${trackId}_${alertType}`;
+            // Check if alert already exists recently to avoid card spamming
+            const exists = trackedAlerts.some(a => a.key === alertKey && (Date.now() - a.time) < 10000);
+            if (exists) return;
+            
+            trackedAlerts.push({ key: alertKey, time: Date.now() });
+            
+            // Clean up alert keys list if it grows large
+            if (trackedAlerts.length > 50) trackedAlerts.shift();
+            
+            // Render Alert Log Card
+            const timestamp = new Date().toLocaleTimeString();
+            const alertCard = document.createElement("div");
+            alertCard.className = "alert-item";
+            
+            // Change colors based on risk severity
+            if (riskLevel === "High") {
+                alertCard.style.borderLeftColor = "var(--danger)";
+                alertCard.style.background = "rgba(239, 68, 68, 0.05)";
+            } else {
+                alertCard.style.borderLeftColor = "var(--warning)";
+                alertCard.style.background = "rgba(245, 158, 11, 0.05)";
+            }
+            
+            alertCard.innerHTML = `
+                <div class="alert-title" style="color: ${riskLevel === 'High' ? '#fca5a5' : '#fde047'}">${alertType.toUpperCase()}</div>
+                <div class="alert-desc">Assigned worker ID: #${trackId} at ${timestamp}</div>
+            `;
+            
+            // Remove mock placeholder text on first alert
+            if (alertsList.querySelector("div[style*='text-align:center']")) {
+                alertsList.innerHTML = "";
+            }
+            
+            // Insert at the top of the alerts log
+            alertsList.insertBefore(alertCard, alertsList.firstChild);
+            
+            // Keep maximum of 5 alerts in DOM to prevent lag
+            if (alertsList.children.length > 5) {
+                alertsList.removeChild(alertsList.lastChild);
+            }
+        }
+
+        // Fetch generated downloadable report assets from server
+        async function fetchReports() {
+            try {
+                const response = await fetch("/api/reports");
+                if (!response.ok) return;
+                
+                const reports = await response.json();
+                if (reports.length === 0) {
+                    downloadsList.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding-top:45px; font-size:0.9rem;">No reports compiled yet</div>`;
+                    return;
+                }
+                
+                let rep_html = "";
+                reports.forEach(r => {
+                    rep_html += `
+                        <div class="download-item">
+                            <div class="download-info">
+                                <span class="download-name">${r.filename}</span>
+                                <span class="download-size">${r.type} File • ${r.size_kb} KB</span>
+                            </div>
+                            <a href="${r.url}" download class="download-btn">Get</a>
+                        </div>
+                    `;
+                });
+                downloadsList.innerHTML = rep_html;
+            } catch (err) {
+                console.error("Error loading reports: ", err);
+            }
+        }
+
+        // Run websocket client
+        connect();
+        
+        // Poll reports list every 8 seconds
+        fetchReports();
+        setInterval(fetchReports, 8000);
+    </script>
+</body>
+</html>

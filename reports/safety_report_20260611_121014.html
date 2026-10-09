@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Factory Worker Safety & Productivity Report</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --bg-color: #0d0f14;
+            --card-bg: rgba(22, 28, 45, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-color: #e2e8f0;
+            --text-muted: #94a3b8;
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.2);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .report-container {
+            max-width: 950px;
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            backdrop-filter: blur(16px);
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin: 0;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header .meta {
+            text-align: right;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .kpi-card .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .kpi-card .label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 40px 0 20px 0;
+            color: #a5b4fc;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::after {
+            content: '';
+            flex-grow: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .subsection-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-color);
+        }
+
+        .worker-card {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .worker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .worker-header h2 {
+            font-size: 1.25rem;
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        .worker-kpi-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .w-kpi-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .w-kpi-box .val {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .w-kpi-box .lbl {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 0.95rem;
+        }
+
+        .worker-tag {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid var(--primary);
+            color: #a5b4fc;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .success-text { color: var(--success); font-weight: 600; }
+        .warning-text { color: var(--warning); font-weight: 600; }
+        .danger-text { color: var(--danger); font-weight: 600; }
+
+        .notes-card {
+            background: rgba(99, 102, 241, 0.04);
+            border-left: 4px solid var(--primary);
+            border-radius: 0 12px 12px 0;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .notes-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.05rem;
+            color: #a5b4fc;
+        }
+
+        .notes-card p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 30px;
+            margin-top: 40px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="report-container">
+    <div class="header">
+        <div>
+            <h1>Factory Safety Analytics</h1>
+            <div style="color: var(--text-muted); margin-top: 5px;">Post-Session Operations Evaluation</div>
+        </div>
+        <div class="meta">
+            <div><strong>Date:</strong> 2026-06-11</div>
+            <div><strong>Duration:</strong> 15s</div>
+            <div><strong>Status:</strong> <span class="danger-text">Hazardous</span></div>
+        </div>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="value" style="color: var(--primary);">20.95%</div>
+            <div class="label">Global Productivity</div>
+        </div>
+        <div class="kpi-card">
+            <div class="value" style="color: var(--success);">20.95%</div>
+            <div class="label">Global Safety Index</div>
+        </div>
+        <div class="kpi-card">
+            <div class="value" style="color: var(--warning);">41.87</div>
+            <div class="label">Average Risk</div>
+        </div>
+        <div class="kpi-card">
+            <div class="value" style="color: var(--danger);">12</div>
+            <div class="label">Discrete Incidents</div>
+        </div>
+    </div>
+
+    <div class="notes-card">
+        <h3>Executive Safety Summary</h3>
+        <p>
+            During this session, worker tracking and temporal Human Activity Recognition (HAR) models assessed movement dynamics.
+            The worker pool demonstrated an overall safety index of <strong>20.95%</strong> with a productivity index of 
+            <strong>20.95%</strong>. A total of <strong>12</strong> discrete hazard incidents were logged. 
+            Detailed individual metrics and timeline logs are provided below.
+        </p>
+    </div>
+
+    <div class="section-title">Individual Worker Directory</div>
+    
+            <div class="worker-card">
+                <div class="worker-header">
+                    <h2>Worker #0 (Track ID: 0)</h2>
+                    <span class="danger-text" style="font-size: 1.1rem; font-weight:700;">
+                        Safety Rating: 0.0%
+                    </span>
+                </div>
+                
+                <div class="worker-kpi-row">
+                    <div class="w-kpi-box">
+                        <div class="val" style="color: var(--primary);">0.0%</div>
+                        <div class="lbl">Productivity Index</div>
+                    </div>
+                    <div class="w-kpi-box">
+                        <div class="val" style="color: var(--warning);">55.0</div>
+                        <div class="lbl">Avg Risk Score</div>
+                    </div>
+                    <div class="w-kpi-box">
+                        <div class="val" style="color: var(--danger);">1</div>
+                        <div class="lbl">Violations Count</div>
+                    </div>
+                </div>
+
+                <div class="worker-sections">
+                    <div class="worker-table-col">
+                        <div class="subsection-title">Activity Breakdown</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Activity Class</th>
+                                    <th>Frames</th>
+                                    <th>Share</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Safe Walkway Violation</td><td>1</td><td>100.0%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+
+            <div class="worker-card">
+                <div class="worker-header">
+                    <h2>Worker #1 (Track ID: 1)</h2>
+                    <span class="danger-text" style="font-size: 1.1rem; font-weight:700;">
+                        Safety Rating: 53.89%
+                    </span>
+                </div>
+                
+                <div class="worker-kpi-row">
+                    <div class="w-kpi-box">
+                        <div class="val" style="color: var(--primary);">53.89%</div>
+                        <div class="lbl">Productivity Index</div>
+                    </div>
+                    <div class="w-kpi-box">
+                        <div class="val" style="color: var(--warning);">34.03</div>
+                        <div class="lbl">Avg Risk Score</div>
+                    </div>
+                    <div class="w-kpi-box">
+                        <div class="val" style="color: var(--danger);">3</div>
+                        <div class="lbl">Violations Count</div>
+                    </div>
+                </div>
+
+                <div class="worker-sections">
+                    <div class="worker-table-col">
+                        <div class="subsection-title">Activity Breakdown</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Activity Class</th>
+                                    <th>Frames</th>
+                                    <th>Share</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Safe Walkway Violation</td><td>82</td><td>45.6%</td></tr><tr><td>Safe Walkway</td><td>70</td><td>38.9%</td></tr><tr><td>Safe Carrying</td><td>10</td><td>5.6%</td></tr><tr><td>Closed Panel Cover</td><td>17</td><td>9.4%</td></tr><tr><td>Opened Panel Cover</td><td>1</td><td>0.6%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+
+            <div class="worker-card">
+                <div class="worker-header">
+                    <h2>Worker #2 (Track ID: 2)</h2>
+                    <span class="danger-text" style="font-size: 1.1rem; font-weight:700;">
+                        Safety Rating: 24.71%
+                    </span>
+                </div>
+                
+                <div class="worker-kpi-row">
+                    <div class="w-kpi-box">
+                        <div class="val" style="color: var(--primary);">24.71%</div>
+                        <div class="lbl">Productivity Index</div>
+                    </div>
+                    <div class="w-kpi-box">
+                        <div class="val" style="color: var(--warning);">47.82</div>
+                        <div class="lbl">Avg Risk Score</div>
+                    </div>
+                    <div class="w-kpi-box">
+                        <div class="val" style="color: var(--danger);">7</div>
+                        <div class="lbl">Violations Count</div>
+                    </div>
+                </div>
+
+                <div class="worker-sections">
+                    <div class="worker-table-col">
+                        <div class="subsection-title">Activity Breakdown</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Activity Class</th>
+                                    <th>Frames</th>
+                                    <th>Share</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Safe Walkway Violation</td><td>42</td><td>49.4%</td></tr><tr><td>Unauthorized Intervention</td><td>2</td><td>2.4%</td></tr><tr><td>Safe Carrying</td><td>6</td><td>7.1%</td></tr><tr><td>Opened Panel Cover</td><td>20</td><td>23.5%</td></tr><tr><td>Authorized Intervention</td><td>10</td><td>11.8%</td></tr><tr><td>Safe Walkway</td><td>5</td><td>5.9%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+
+            <div class="worker-card">
+                <div class="worker-header">
+                    <h2>Worker #3 (Track ID: 3)</h2>
+                    <span class="danger-text" style="font-size: 1.1rem; font-weight:700;">
+                        Safety Rating: 5.19%
+                    </span>
+                </div>
+                
+                <div class="worker-kpi-row">
+                    <div class="w-kpi-box">
+                        <div class="val" style="color: var(--primary);">5.19%</div>
+                        <div class="lbl">Productivity Index</div>
+                    </div>
+                    <div class="w-kpi-box">
+                        <div class="val" style="color: var(--warning);">53.44</div>
+                        <div class="lbl">Avg Risk Score</div>
+                    </div>
+                    <div class="w-kpi-box">
+                        <div class="val" style="color: var(--danger);">1</div>
+                        <div class="lbl">Violations Count</div>
+                    </div>
+                </div>
+
+                <div class="worker-sections">
+                    <div class="worker-table-col">
+                        <div class="subsection-title">Activity Breakdown</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Activity Class</th>
+                                    <th>Frames</th>
+                                    <th>Share</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Safe Walkway Violation</td><td>73</td><td>94.8%</td></tr><tr><td>Safe Carrying</td><td>4</td><td>5.2%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+
+    <div class="section-title">Safety Incident Timeline</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Incident ID</th>
+                <th>Worker ID</th>
+                <th>Violation Type</th>
+                <th>Video Timeline</th>
+                <th>Duration (s)</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+                <tr>
+                    <td>Incident #1</td>
+                    <td><span class="worker-tag">Worker #1</span></td>
+                    <td class="danger-text">Walkway Boundary Crossing</td>
+                    <td>00:00 - 00:07</td>
+                    <td><strong>7s</strong> (81 frames)</td>
+                </tr>
+                
+                <tr>
+                    <td>Incident #2</td>
+                    <td><span class="worker-tag">Worker #1</span></td>
+                    <td class="danger-text">Exposed Electrical Hazard</td>
+                    <td>00:08 - 00:08</td>
+                    <td><strong>1s</strong> (1 frames)</td>
+                </tr>
+                
+                <tr>
+                    <td>Incident #3</td>
+                    <td><span class="worker-tag">Worker #2</span></td>
+                    <td class="danger-text">Walkway Boundary Crossing</td>
+                    <td>00:11 - 00:12</td>
+                    <td><strong>1s</strong> (30 frames)</td>
+                </tr>
+                
+                <tr>
+                    <td>Incident #4</td>
+                    <td><span class="worker-tag">Worker #2</span></td>
+                    <td class="danger-text">Unauthorized Machine Access</td>
+                    <td>00:12 - 00:12</td>
+                    <td><strong>1s</strong> (1 frames)</td>
+                </tr>
+                
+                <tr>
+                    <td>Incident #5</td>
+                    <td><span class="worker-tag">Worker #2</span></td>
+                    <td class="danger-text">Walkway Boundary Crossing</td>
+                    <td>00:12 - 00:12</td>
+                    <td><strong>1s</strong> (1 frames)</td>
+                </tr>
+                
+                <tr>
+                    <td>Incident #6</td>
+                    <td><span class="worker-tag">Worker #2</span></td>
+                    <td class="danger-text">Unauthorized Machine Access</td>
+                    <td>00:13 - 00:13</td>
+                    <td><strong>1s</strong> (1 frames)</td>
+                </tr>
+                
+                <tr>
+                    <td>Incident #7</td>
+                    <td><span class="worker-tag">Worker #2</span></td>
+                    <td class="danger-text">Walkway Boundary Crossing</td>
+                    <td>00:13 - 00:13</td>
+                    <td><strong>1s</strong> (10 frames)</td>
+                </tr>
+                
+                <tr>
+                    <td>Incident #8</td>
+                    <td><span class="worker-tag">Worker #2</span></td>
+                    <td class="danger-text">Exposed Electrical Hazard</td>
+                    <td>00:13 - 00:14</td>
+                    <td><strong>1s</strong> (20 frames)</td>
+                </tr>
+                
+                <tr>
+                    <td>Incident #9</td>
+                    <td><span class="worker-tag">Worker #1</span></td>
+                    <td class="danger-text">Walkway Boundary Crossing</td>
+                    <td>00:09 - 00:09</td>
+                    <td><strong>1s</strong> (1 frames)</td>
+                </tr>
+                
+                <tr>
+                    <td>Incident #10</td>
+                    <td><span class="worker-tag">Worker #0</span></td>
+                    <td class="danger-text">Walkway Boundary Crossing</td>
+                    <td>00:11 - 00:11</td>
+                    <td><strong>1s</strong> (1 frames)</td>
+                </tr>
+                
+                <tr>
+                    <td>Incident #11</td>
+                    <td><span class="worker-tag">Worker #2</span></td>
+                    <td class="danger-text">Walkway Boundary Crossing</td>
+                    <td>00:15 - 00:15</td>
+                    <td><strong>1s</strong> (1 frames)</td>
+                </tr>
+                
+                <tr>
+                    <td>Incident #12</td>
+                    <td><span class="worker-tag">Worker #3</span></td>
+                    <td class="danger-text">Walkway Boundary Crossing</td>
+                    <td>00:12 - 00:15</td>
+                    <td><strong>3s</strong> (73 frames)</td>
+                </tr>
+                
+        </tbody>
+    </table>
+
+    <div class="section-title">AI System Recommendations</div>
+    <div style="font-size:0.95rem; line-height: 1.7; color: var(--text-muted);">
+        <ul style="padding-left: 20px; margin: 0;">
+            <li style="margin-bottom: 10px;"><strong style="color:var(--text-color);">Ergonomic Lifting:</strong> Overload carry alerts suggest back angle deviations. Re-train workers on standard squat-lifting methodologies.</li>
+            <li style="margin-bottom: 10px;"><strong style="color:var(--text-color);">Boundary Violations:</strong> Ensure that restricted walkway corridors are visibly demarcated to avoid accidental Safe Walkway crossings.</li>
+            <li><strong style="color:var(--text-color);">Panel Maintenance:</strong> Keep panels closed. Standard operating procedures must demand closing electrical gates directly after intervention processes.</li>
+        </ul>
+    </div>
+
+    <div class="footer">
+        Generated by Antigravity HAR Platform | AI Operations Auditing Project
+    </div>
+</div>
+
+</body>
+</html>
